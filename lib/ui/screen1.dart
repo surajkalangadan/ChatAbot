@@ -11,14 +11,13 @@ class screen1 extends StatefulWidget {
   @override
   State<screen1> createState() => _screen1State();
 }
-late Chatabot anime;
+
+late Chatabot chatabot;
+List<String>message=[];
+TextEditingController a=TextEditingController();
 class _screen1State extends State<screen1> {
-  @override
-  void initState() {
-    BlocProvider.of<ChatblocBloc>(context)
-        .add(FetchChat());
-    super.initState();
-  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,12 +25,13 @@ class _screen1State extends State<screen1> {
         backgroundColor: Colors.green[400],
         leading: Padding(
           padding: EdgeInsets.all(8),
-          child: Container(height: 40.h,width: 40.w,
+          child: Container(
+            height: 40.h,
+            width: 40.w,
             child: CircleAvatar(
               backgroundImage: NetworkImage(
                   "https://satincorp.com/wp-content/uploads/2021/01/ai-robot-using-computer-chat-with-customer-scaled-1.jpg"),
               radius: 20.r,
-
             ),
           ),
         ),
@@ -47,8 +47,47 @@ class _screen1State extends State<screen1> {
           ),
         ),
       ),
-      body: ListView(
-        children: [],
+      body: BlocBuilder<ChatblocBloc, ChatblocState>(builder: (context, state) {
+        if (state is ChatblocLoading) {
+          return const Center(
+            child: Text("TYPING"),
+          );
+        }
+        if (state is ChatblocError) {
+          return RefreshIndicator(
+            onRefresh: () async {
+              // return BlocProvider.of<ChatblocBloc>(context).add(FetchChat());
+            },
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: SizedBox(
+                  height: MediaQuery.of(context).size.height * .9,
+                  // color: Colors.red,
+                  child:
+                      const Center(child: Text('Oops something went wrong'))),
+            ),
+          );
+        }
+        if (state is ChatblocLoaded) {
+          chatabot = BlocProvider.of<ChatblocBloc>(context).chatabot;
+          message.add(chatabot.chatbot!.response.toString());
+          return ListView.builder(itemCount: message.length,
+              itemBuilder: (BuildContext context, int index) {
+                return
+                  Padding(
+                    padding: EdgeInsets.only(top: 10.h, left: index==0||index.isEven?129.w:24),
+                    child: Container(
+                      height: 50.h,
+                      width: MediaQuery
+                          .of(context)
+                          .size
+                          .width, child: Text(message[index]),
+                    ),
+                  );
+              }
+              );
+        }else{return SizedBox();}
+      }
       ),
       bottomSheet: BottomSheet(
         onClosing: () {},
@@ -63,7 +102,7 @@ class _screen1State extends State<screen1> {
                     width: 300.w,
                     child: Padding(
                       padding: EdgeInsets.only(left: 25.w),
-                      child: TextFormField(
+                      child: TextFormField(controller: a,
                         style: TextStyle(color: Colors.black),
                         decoration: InputDecoration(
                             hintText: "write your message",
@@ -81,9 +120,14 @@ class _screen1State extends State<screen1> {
                   CircleAvatar(
                     radius: 20,
                     backgroundColor: Colors.black,
-                    child: Icon(
-                      Icons.send,
-                      color: Colors.white,
+                    child: GestureDetector(onTap: (){
+                      message.add(a.text);
+                      BlocProvider.of<ChatblocBloc>(context).add(FetchChat(message: a.text));
+                    },
+                      child: Icon(
+                        Icons.send,
+                        color: Colors.white,
+                      ),
                     ),
                   )
                 ],

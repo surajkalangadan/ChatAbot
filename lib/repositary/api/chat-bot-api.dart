@@ -14,8 +14,8 @@ class ChatApi {
   ApiClient apiClient = ApiClient();
 
 
-  Future<Chatabot> getChatbot() async {
-    String trendingpath = 'https://ai-chatbot.p.rapidapi.com/chat/free?message=What\'s your name?&uid=user1';
+  Future<Chatabot> getChatbot(String message) async {
+    String trendingpath = 'https://ai-chatbot.p.rapidapi.com/chat/free?message=$message?&uid=user1';
     var body = {
 
     };

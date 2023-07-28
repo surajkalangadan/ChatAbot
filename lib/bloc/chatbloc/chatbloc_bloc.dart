@@ -18,7 +18,7 @@ class ChatblocBloc extends Bloc<ChatblocEvent, ChatblocState> {
       emit(ChatblocLoading());
       try{
 
-        chatabot = await chatApi.getChatbot();
+        chatabot = await chatApi.getChatbot(event.message);
         emit(ChatblocLoaded());
       } catch(e){
         print(e);
