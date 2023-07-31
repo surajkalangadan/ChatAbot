@@ -131,7 +131,8 @@ class _screen1State extends State<screen1> {
                     ),
                   )
                 ],
-              ));
+              )
+          );
         },
       ),
     );
